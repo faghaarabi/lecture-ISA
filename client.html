@@ -1,94 +1,82 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>HTTPOnly Cookie Demo</title>
 </head>
 <body>
-    <input type="text" id="username" placeholder="Username"><br>
-    <input type="password" id="password" placeholder="Password"><br>
-    <button id="loginBtn">Login</button>
-    <button id="logoutBtn" style="display:none;">Logout</button>
-    <button id="getBtn" style="display:none;">Get Something</button>
-    <script>
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const getBtn = document.getElementById('getBtn');
 
-        function checkStatus() {
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        loginBtn.style.display = 'none';
-                        logoutBtn.style.display = 'inline';
-                        getBtn.style.display = 'inline';
-                    } else {
-                        loginBtn.style.display = 'inline';
-                        logoutBtn.style.display = 'none';
-                        getBtn.style.display = 'none';
-                    }
-                }
-            };
-            xhr.open('GET', 'https://apiz.ca/httponly-cookie/check');
-            xhr.send();
-        }
+<h2>Login</h2>
+<input id="username" placeholder="username" />
+<input id="password" placeholder="password" type="password" />
+<button onclick="login()">Login</button>
 
-        loginBtn.onclick = function() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        checkStatus();
-                        document.getElementById('username').value = '';
-                        document.getElementById('password').value = '';
-                    } else {
-                        alert('Login failed');
-                    }
-                }
-            };
-            xhr.open('POST', 'https://apiz.ca/httponly-cookie/login');
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify({ username, password }));
-        };
+<h2>Check Login</h2>
+<button onclick="checkLogin()">Check</button>
 
-        logoutBtn.onclick = function() {
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    checkStatus();
-                }
-            };
-            xhr.open('POST', 'https://apiz.ca/httponly-cookie/logout');
-            xhr.send();
-        };
+<h2>Get Secret</h2>
+<button onclick="getSecret()">Get Secret</button>
 
-        getBtn.onclick = function() {
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        const response = JSON.parse(xhr.responseText);
-                        alert(response.message);
-                    } else {
-                        alert('Not logged in');
-                        checkStatus();
-                    }
-                }
-            };
-            xhr.open('GET', 'https://apiz.ca/httponly-cookie/something');
-            xhr.send();
-        };
+<h2>Logout</h2>
+<button onclick="logout()">Logout</button>
 
-        checkStatus();
-        //DeepSeek Was used for this 
-    </script>
+<p id="result"></p>
+
+<script>
+const BASE_URL = "https://lecture-isa.onrender.com";
+
+async function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch(`${BASE_URL}/httponly-cookie/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    });
+
+    document.getElementById("result").innerText =
+        res.status === 200 ? "Logged in!" : "Login failed";
+}
+
+async function checkLogin() {
+    const res = await fetch(`${BASE_URL}/httponly-cookie/check`, {
+        method: "GET",
+        credentials: "include"
+    });
+
+    document.getElementById("result").innerText =
+        res.status === 200 ? "You are logged in" : "Not logged in";
+}
+
+async function getSecret() {
+    const res = await fetch(`${BASE_URL}/httponly-cookie/something`, {
+        method: "GET",
+        credentials: "include"
+    });
+
+    if (res.status === 200) {
+        const data = await res.json();
+        document.getElementById("result").innerText = data.message;
+    } else {
+        document.getElementById("result").innerText = "Unauthorized";
+    }
+}
+
+async function logout() {
+    const res = await fetch(`${BASE_URL}/httponly-cookie/logout`, {
+        method: "POST",
+        credentials: "include"
+    });
+
+    document.getElementById("result").innerText =
+        res.status === 200 ? "Logged out" : "Error";
+}
+</script>
+
 </body>
 </html>

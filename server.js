@@ -1,7 +1,7 @@
 const http = require('http');
+
 const server = http.createServer((req, res) => {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', 'https://apiz.ca');
+    res.setHeader('Access-Control-Allow-Origin', 'https://lecture-isa-1.onrender.com');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -12,8 +12,11 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Check login status
-    if (req.url === '/httponly-cookie/check' && req.method === 'GET') {
+    if (req.url === '/' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Server is running');
+    }
+    else if (req.url === '/httponly-cookie/check' && req.method === 'GET') {
         const cookie = req.headers.cookie;
         if (cookie && cookie.includes('token=R99R')) {
             res.writeHead(200);
@@ -23,7 +26,6 @@ const server = http.createServer((req, res) => {
             res.end();
         }
     }
-    // Login
     else if (req.url === '/httponly-cookie/login' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => body += chunk);
@@ -35,14 +37,12 @@ const server = http.createServer((req, res) => {
                     'Content-Type': 'application/json'
                 });
                 res.end(JSON.stringify({ message: 'Logged in' }));
-                console.log("logged in!")
             } else {
                 res.writeHead(401);
                 res.end();
             }
         });
     }
-    // Get treasure
     else if (req.url === '/httponly-cookie/something' && req.method === 'GET') {
         const cookie = req.headers.cookie;
         if (cookie && cookie.includes('token=R99R')) {
@@ -53,7 +53,6 @@ const server = http.createServer((req, res) => {
             res.end();
         }
     }
-    // Logout
     else if (req.url === '/httponly-cookie/logout' && req.method === 'POST') {
         res.writeHead(200, {
             'Set-Cookie': 'token=; HttpOnly; Path=/; Max-Age=0; SameSite=None; Secure'
@@ -62,9 +61,9 @@ const server = http.createServer((req, res) => {
     }
     else {
         res.writeHead(404);
-        res.end();
+        res.end('Not Found');
     }
 });
 
-server.listen(3000);
-//DeepSeek Was used for this
+const PORT = process.env.PORT || 3000;
+server.listen(PORT);
