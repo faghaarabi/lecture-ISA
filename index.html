@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,9 +7,11 @@
 <body>
 
 <h2>Login</h2>
-<input id="username" placeholder="username" />
-<input id="password" placeholder="password" type="password" />
-<button onclick="login()">Login</button>
+<form id="loginForm">
+    <input id="username" placeholder="username" />
+    <input id="password" placeholder="password" type="password" />
+    <button type="submit">Login</button>
+</form>
 
 <h2>Check Login</h2>
 <button onclick="checkLogin()">Check</button>
@@ -26,7 +27,12 @@
 <script>
 const BASE_URL = "https://lecture-isa.onrender.com";
 
-async function login() {
+// ✅ handle form submit instead of onclick
+document.getElementById("loginForm").addEventListener("submit", login);
+
+async function login(e) {
+    e.preventDefault(); // prevent page reload
+
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
